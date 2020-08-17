@@ -1,0 +1,50 @@
+install.packages("Seurat")
+install.packages("featureCounts")
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install("Rsubread")
+
+library(data.table)
+# library(edgeR)
+library(uwot)
+raw_gene_counts<-read.delim("~/Lillian/AdScript_Wagner20_Cultured_gene_counts_cultured.txt", as.is=T)
+gene_counts<-data.table::raw_gene_counts
+library(Seurat)
+library(Rsubread)
+library(ggplot2)
+library(Matrix)
+library(dplyr)
+library(devtools)
+library(umap)
+library(clustree)
+library(ggplot2)
+
+raw_gene_counts<-read.delim("~/Lillian/AdScript_Wagner20_Cultured_gene_counts_cultured.txt", as.is=T)
+gene_counts_frame<-data.frame(raw_gene_counts)
+gene_counts_frame<-subset(gene_counts_frame, select = -c(entrez,length) )
+gene_seurat_sorted <- CreateSeuratObject(counts = gene_counts_frame, project = "atomAging", min.cells = 3, min.features = 200)
+
+
+setwd("Downloads")
+getwd()
+read.csv("gencode.v34.annotation.gtf")
+ann <- featureCounts("gencode.v34.annotation.gtf")
+fc_SE <- featureCounts("E-MTAB-8403.CN10_502_702_Aligned_sorted.bam","gencode.v34.annotation.gtf")
+head(fc_SE)
+features <- featureCounts("E-MTAB-8403.CN10_502_702_Aligned_sorted.bam",isGTFAnnotationFile = TRUE,
+              # annotation
+              annot.ext="gencode.v34.annotation.gtf")
+features
+library(dplyr)
+colnames(features)
+dataframe <- data.frame(features)
+head(dataframe)
+pbmc <- CreateSeuratObject(counts = features, project = "atomAging", min.cells = 3, min.features = 200)
+count_matrix <- data.frame(features$counts)
+head(count_matrix)
+pbmc <- CreateSeuratObject(counts = count_matrix, project = "atomAging", min.cells = 3, min.features = 200)
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+BiocManager::install("scruff")
+library(scruff)
